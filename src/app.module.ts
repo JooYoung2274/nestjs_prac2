@@ -1,7 +1,8 @@
-import { Module } from '@nestjs/common';
-import { NestApplicationContextOptions } from '@nestjs/common/interfaces/nest-application-context-options.interface';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { response } from 'express';
+
+import { LoggerMiddleware } from 'middlewares/logger.middleware';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
@@ -23,4 +24,9 @@ import { AppService } from './app.service';
   controllers: [AppController],
   providers: [AppService, ConfigService],
 })
-export class AppModule {}
+// NestModule 은 Logger 때문에 추가
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer): any {
+    consumer.apply(LoggerMiddleware).forRoutes('*');
+  }
+}
