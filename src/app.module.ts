@@ -23,6 +23,14 @@ import { AppService } from './app.service';
   imports: [ConfigModule.forRoot({ isGlobal: true })],
   controllers: [AppController],
   providers: [AppService, ConfigService],
+
+  // // 만약 커스텀 provider를 사용해야 한다면 아래처럼
+  // providers: [
+  //   {
+  //     provide: 'CUSTOM_PROVIDER',
+  //     useValue: 'value', // useValue or useClass or useFactory
+  //   },
+  // ],
 })
 // NestModule 은 Logger 때문에 추가
 export class AppModule implements NestModule {
