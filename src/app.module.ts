@@ -8,6 +8,8 @@ import { WorkspacesModule } from './workspaces/workspaces.module';
 import { ChannelsModule } from './channels/channels.module';
 import { DmsModule } from './dms/dms.module';
 
+import { AuthModule } from './auth/auth.module';
+
 // test2
 // AWS 저장소에서 비밀키 불러올때 아래처럼
 // const getEnv = async () => {
@@ -29,6 +31,7 @@ import { DmsModule } from './dms/dms.module';
     WorkspacesModule,
     ChannelsModule,
     DmsModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService, ConfigService],

@@ -9,16 +9,8 @@ export class JoinRequestDto {
   public email: string;
 
   @ApiProperty({
-    example: '후르르',
-    description: '닉네임',
+    description: '구글 토큰',
     required: true,
   })
-  public nickname: string;
-
-  @ApiProperty({
-    example: '비밀번호',
-    description: '123',
-    required: true,
-  })
-  public password: string;
+  public accessToken: string;
 }
