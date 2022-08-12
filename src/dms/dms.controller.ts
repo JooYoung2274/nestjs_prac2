@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
-import { ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('DM')
 @Controller('api/workspaces/:url/dms')
@@ -24,12 +24,24 @@ export class DmsController {
     description: '불러올 페이지',
     required: true,
   })
+  @ApiOperation({ summary: 'dm채팅 가져오기' })
   @Get(':id/chats')
   getChat(@Query() query, @Param() param) {
     console.log(query.perPage, query.page);
     console.log(param.id, param.url);
   }
 
+  @ApiParam({
+    name: 'url',
+    description: '워크스페이스 url',
+    required: true,
+  })
+  @ApiParam({
+    name: 'id',
+    description: '사용자 id',
+    required: true,
+  })
+  @ApiOperation({ summary: 'dm채팅 보내기' })
   @Post(':id/chats')
   postChat(@Body() body) {}
 }
