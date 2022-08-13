@@ -1,5 +1,6 @@
 import { Body, Controller, Get, Post, Req, Res } from '@nestjs/common';
-import { ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { UserDto } from 'src/common/dto/user.dto';
 import { JoinRequestDto } from './dto/join.request.dto';
 import { UsersService } from './users.service';
 
@@ -8,6 +9,9 @@ import { UsersService } from './users.service';
 export class UsersController {
   constructor(private userService: UsersService) {}
 
+  @ApiResponse({
+    type: UserDto,
+  })
   @ApiOperation({ summary: '내 정보조회' })
   @Get()
   getUsers(@Req() req) {
@@ -20,6 +24,15 @@ export class UsersController {
     this.userService.postUsers(body.email);
   }
 
+  @ApiResponse({
+    status: 200,
+    description: '성공',
+    type: UserDto,
+  })
+  @ApiResponse({
+    status: 500,
+    description: '서버에러',
+  })
   @ApiOperation({ summary: '로그인' })
   @Post('login')
   logIn(@Req() req) {
