@@ -9,6 +9,15 @@ import { ChannelsModule } from './channels/channels.module';
 import { DmsModule } from './dms/dms.module';
 
 import { AuthModule } from './auth/auth.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { ChannelChats } from './entities/ChannelChats';
+import { ChannelMembers } from './entities/ChannelMembers';
+import { Channels } from './entities/Channels';
+import { DMs } from './entities/DMs';
+import { Mentions } from './entities/Mentions';
+import { Users } from './entities/Users';
+import { WorkspaceMembers } from './entities/WorkspaceMembers';
+import { Workspaces } from './entities/Workspaces';
 
 // test2
 // AWS 저장소에서 비밀키 불러올때 아래처럼
@@ -32,6 +41,39 @@ import { AuthModule } from './auth/auth.module';
     ChannelsModule,
     DmsModule,
     AuthModule,
+    // configService를 사용하기위해서 forRootAsync 사용.
+    // 지금은 .env에서 받아왔지만 나중에 ConfigModule.forRoot({ isGlobal: true, load:[getData] })
+    // getData에서 return된 데이터도 사용가능 함. (aws 보안저장소 같은 곳)
+    TypeOrmModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => {
+        return {
+          type: 'mysql',
+          host: 'localhost',
+          port: 3306,
+          username: configService.get('DB_USERNAME'),
+          password: configService.get('DB_PASSWORD'),
+          database: configService.get('DB_DATABASE'),
+          entities: [
+            ChannelChats,
+            ChannelMembers,
+            Channels,
+            DMs,
+            Mentions,
+            Users,
+            WorkspaceMembers,
+            Workspaces,
+          ],
+          // migrations: [__dirname + '/src/migrations/*.ts'], // 지금은 필요없음
+          // cli: { migrationsDir: 'src/migrations' }, // 지금은 필요없음
+          autoLoadEntities: true,
+          charset: 'utf8mb4',
+          synchronize: true, // dev 환경일때만 사용
+          logging: true, // query 날리는것 로깅
+          // keepConnectionAlive: true, //hot reloading 할때 필요
+        };
+      },
+    }), // typeorm import
   ],
   controllers: [AppController],
   providers: [AppService, ConfigService],
