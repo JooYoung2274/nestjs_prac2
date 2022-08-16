@@ -40,7 +40,8 @@ import { Workspaces } from './entities/Workspaces';
     WorkspacesModule,
     ChannelsModule,
     DmsModule,
-    AuthModule,
+    // AuthModule, //일단 Oauth2 빼야하니까 주석처리
+
     // configService를 사용하기위해서 forRootAsync 사용.
     // 지금은 .env에서 받아왔지만 나중에 ConfigModule.forRoot({ isGlobal: true, load:[getData] })
     // getData에서 return된 데이터도 사용가능 함. (aws 보안저장소 같은 곳)
@@ -74,6 +75,7 @@ import { Workspaces } from './entities/Workspaces';
         };
       },
     }), // typeorm import
+    TypeOrmModule.forFeature([Users]),
   ],
   controllers: [AppController],
   providers: [AppService, ConfigService],
