@@ -64,13 +64,13 @@ import { Workspaces } from './entities/Workspaces';
             WorkspaceMembers,
             Workspaces,
           ],
-          // migrations: [__dirname + '/src/migrations/*.ts'], // 지금은 필요없음
-          // cli: { migrationsDir: 'src/migrations' }, // 지금은 필요없음
+          migrations: [__dirname + '/src/migrations/*.ts'], // 지금은 필요없음
+          cli: { migrationsDir: 'src/migrations' }, // 지금은 필요없음
           autoLoadEntities: true,
           charset: 'utf8mb4',
-          synchronize: true, // dev 환경일때만 사용
+          synchronize: false, // dev 환경일때만 사용 (한번 true로 하고, false로 변경)
           logging: true, // query 날리는것 로깅
-          // keepConnectionAlive: true, //hot reloading 할때 필요
+          keepConnectionAlive: true, //hot reloading 할때 필요
         };
       },
     }), // typeorm import
