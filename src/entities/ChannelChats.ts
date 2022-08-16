@@ -10,6 +10,7 @@ import {
 } from 'typeorm';
 import { Users } from './Users';
 import { Channels } from './Channels';
+import { IsString } from 'class-validator';
 
 @Index('UserId', ['UserId'], {})
 @Index('ChannelId', ['ChannelId'], {})

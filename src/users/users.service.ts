@@ -1,4 +1,9 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Users } from 'src/entities/Users';
 import { Repository } from 'typeorm';
@@ -12,19 +17,20 @@ export class UsersService {
   ) {}
 
   async join(email: string, nickname: string, password: string) {
-    if (!email) {
-      throw new HttpException('email X', 400);
-    }
-    if (!nickname) {
-      throw new HttpException('nickname X', 400);
-    }
-    if (!password) {
-      throw new HttpException('password X', 400);
-    }
+    // class-validator로 dto 단에서 검증 가능
+    // if (!email) {
+    //   throw new BadRequestException('email X');
+    // }
+    // if (!nickname) {
+    //   throw new BadRequestException('nickname X');
+    // }
+    // if (!password) {
+    //   throw new BadRequestException('password X'); //status 400 error
+    // }
 
     const user = await this.usersRepository.findOne({ where: { email } });
     if (user) {
-      throw new HttpException('USER_EXISTS', 401);
+      throw new UnauthorizedException('USER_EXISTS'); //status 401 error
     }
 
     const hashedPassword = await bcrypt.hash(password, 12);
