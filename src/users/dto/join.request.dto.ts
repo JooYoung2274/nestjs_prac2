@@ -1,12 +1,8 @@
-import { ApiProperty, PickType } from '@nestjs/swagger';
-import { Users } from 'src/entities/Users';
+import { ApiProperty, PickType } from "@nestjs/swagger";
+import { Users } from "src/entities/Users";
 
 // PickType은 entities에 있는 것을 DTO로 사용하고 싶을때 씀
-export class JoinRequestDto extends PickType(Users, [
-  'email',
-  'nickname',
-  'password',
-] as const) {}
+export class JoinRequestDto extends PickType(Users, ["email", "nickname", "password"] as const) {}
 
 // // OAUTH 사용할 떄
 // export class JoinRequestDto {
