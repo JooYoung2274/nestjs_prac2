@@ -1,6 +1,8 @@
 import { Body, Controller, Get, Post, Req, Res, UseGuards, UseInterceptors } from "@nestjs/common";
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { LocalAuthGuard } from "src/auth-local/local-auth.guard";
+import { LoggedInGuard } from "src/auth-local/logged-in.guard";
+import { NotLoggedInGuard } from "src/auth-local/not-logged-in.guard";
 import { User } from "src/common/decorators/user.decorator";
 import { UserDto } from "src/common/dto/user.dto";
 import { UndefinedToNullInterceptor } from "src/common/interceptors/undefinedToNull.interceptor";
@@ -19,9 +21,10 @@ export class UsersController {
   @ApiOperation({ summary: "내 정보조회" })
   @Get()
   getUsers(@User() user) {
-    return user;
+    return user || false;
   }
 
+  @UseGuards(new NotLoggedInGuard()) // 로그인 안한 사람만 쓸 수 있게
   @ApiOperation({ summary: "회원가입" })
   @Post()
   async join(@Body() body: JoinRequestDto) {
@@ -39,12 +42,13 @@ export class UsersController {
     description: "서버에러",
   })
   @ApiOperation({ summary: "로그인" })
-  @UseGuards(LocalAuthGuard)
+  @UseGuards(new LocalAuthGuard())
   @Post("login")
   logIn(@User() user) {
     return user;
   }
 
+  @UseGuards(new LoggedInGuard()) // 로그인 한 사람만 쓸 수 있게
   @ApiOperation({ summary: "로그아웃" })
   @Post("logout")
   logOut(@Req() req, @Res() res) {
