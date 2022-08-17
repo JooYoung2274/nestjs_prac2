@@ -1,16 +1,40 @@
-import { Controller, Delete, Get, Post } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post } from "@nestjs/common";
 import { ApiOperation, ApiParam, ApiTags } from "@nestjs/swagger";
+import { User } from "src/common/decorators/user.decorator";
+import { Users } from "src/entities/Users";
+import { CreateWorkspaceDto } from "./dto/create-workspace.dto";
+import { WorkspacesService } from "./workspaces.service";
 
 @ApiTags("workspaces")
 @Controller("api/workspaces")
 export class WorkspacesController {
+  constructor(private workspacesService: WorkspacesService) {}
+
+  // @ApiOperation({ summary: "내 워크스페이스 가져오기" })
+  // @Get()
+  // getMyWorkspaces(@Param("myId", ParseIntPipe) myId: number) {
+  //   // const result = this.workspacesService.findMyWorkspaces(+myId); // + 붙여주는 것도 방법이지만...
+  //   // ParseIntPipe 넣어주면 애초에 불러오면서 number로 타입변환해줌
+
+  //   // 만약 /api/workspaces/1,2,3 or /api/workspaces?id=1,2,3 이런식으로 오면
+  //   // new ParseArrayPipe({items: Number, separator: ','}) 활용해서 배열타입으로 변환하는 꿀팁
+  //   const result = this.workspacesService.findMyWorkspaces(myId);
+  //   return result;
+  // }
+
   @ApiOperation({ summary: "내 워크스페이스 가져오기" })
   @Get()
-  getMyWorkspaces() {}
+  getMyWorkspaces(@User() user: Users) {
+    const result = this.workspacesService.findMyWorkspaces(user.id);
+    return result;
+  }
 
   @ApiOperation({ summary: "내 워크스페이스 만들기" })
   @Post()
-  createMyWorkspace() {}
+  createMyWorkspace(@User() user: Users, @Body() body: CreateWorkspaceDto) {
+    const result = this.workspacesService.createWorkspace(body.workspace, body.url, user.id);
+    return result;
+  }
 
   @ApiParam({
     name: "url",
