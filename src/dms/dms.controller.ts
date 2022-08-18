@@ -8,7 +8,7 @@ import path from "path";
 import { LoggedInGuard } from "../auth-local/logged-in.guard";
 import { User } from "../common/decorators/user.decorator";
 import { Users } from "../entities/Users";
-import { DMsService } from "./dms.service";
+import { DmsService } from "./dms.service";
 
 try {
   fs.readdirSync("uploads");
@@ -21,8 +21,8 @@ try {
 @ApiCookieAuth("connect.sid")
 @UseGuards(LoggedInGuard)
 @Controller("api/workspaces")
-export class DMsController {
-  constructor(private dmsService: DMsService) {}
+export class DmsController {
+  constructor(private dmsService: DmsService) {}
 
   @ApiOperation({ summary: "워크스페이스 DM 모두 가져오기" })
   @Get(":url/dms")

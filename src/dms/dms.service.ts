@@ -1,18 +1,18 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
+import { DMs } from "src/entities/DMs";
+import { Users } from "src/entities/Users";
+import { Workspaces } from "src/entities/Workspaces";
+import { EventsGateway } from "src/events/events.gateway";
 import { onlineMap } from "src/events/onlineMap";
 import { MoreThan, Repository } from "typeorm";
-import { DMs } from "../entities/DMs";
-import { Users } from "../entities/Users";
-import { Workspaces } from "../entities/Workspaces";
-import { EventsGateway } from "../events/events.gateway";
 
 function getKeyByValue(object, value) {
   return Object.keys(object).find(key => object[key] === value);
 }
 
 @Injectable()
-export class DMsService {
+export class DmsService {
   constructor(
     @InjectRepository(Workspaces)
     private workspacesRepository: Repository<Workspaces>,
