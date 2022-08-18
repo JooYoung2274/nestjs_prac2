@@ -1,7 +1,19 @@
-import { Body, Controller, Get, Param, Post, Query } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post, Query, UploadedFile, UploadedFiles, UseInterceptors } from "@nestjs/common";
+import { FileInterceptor, FilesInterceptor } from "@nestjs/platform-express";
 import { ApiOperation, ApiParam, ApiTags } from "@nestjs/swagger";
-import { query } from "express";
+import { User } from "src/common/decorators/user.decorator";
 import { ChannelsService } from "./channels.service";
+import { PostChatDto } from "./dto/post-chat.dto";
+import fs from "fs";
+import multer from "multer";
+import path from "path";
+
+try {
+  fs.readdirSync("uploads");
+} catch (error) {
+  console.error("uploads 폴더가 없어 uploads 폴더를 생성합니다.");
+  fs.mkdirSync("uploads");
+}
 
 @ApiTags("Channels")
 @Controller("api/workspaces/:url/channels")
@@ -68,7 +80,10 @@ export class ChannelsController {
   })
   @ApiOperation({ summary: "채팅 보내기" })
   @Post(":name/chats")
-  postChat() {}
+  postChat(@Body() body: PostChatDto, @User() user, @Param("url") url: string, @Param("name") name: string) {
+    const result = this.channelsService.postChat({ url, name, content: body.content, myId: user.id });
+    return result;
+  }
 
   @ApiParam({
     name: "url",
@@ -94,9 +109,26 @@ export class ChannelsController {
     description: "채널 이름",
     required: true,
   })
-  @ApiOperation({ summary: "이미지 조회" })
+  @ApiOperation({ summary: "이미지 보내기" })
+  @UseInterceptors(
+    FilesInterceptor("image", 10, {
+      storage: multer.diskStorage({
+        destination(req, file, cb) {
+          cb(null, "uploads/");
+        },
+        filename(req, file, cb) {
+          const ext = path.extname(file.originalname);
+          cb(null, path.basename(file.originalname, ext) + Date.now() + ext);
+        },
+      }),
+      limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+    }),
+  ) //한개 올리는거면 FileInterceptor -> @UploadedFile() | 두개 올리는거면 FilesInterceptor -> @UploadedFiles()
   @Post(":name/images")
-  getImage() {}
+  postImage(@UploadedFiles() files: Express.Multer.File[], @Param("url") url: string, @Param("name") name: string, @User() user) {
+    const result = this.channelsService.createWorkspaceChannelImages(url, name, files, user.id);
+    return result;
+  }
 
   @ApiParam({
     name: "url",

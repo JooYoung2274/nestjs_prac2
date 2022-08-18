@@ -1,13 +1,12 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
-import { MulterModule } from "@nestjs/platform-express";
 import { InjectRepository } from "@nestjs/typeorm";
-import { chmod } from "fs";
 import { ChannelChats } from "src/entities/ChannelChats";
 import { ChannelMembers } from "src/entities/ChannelMembers";
 import { Channels } from "src/entities/Channels";
 import { Users } from "src/entities/Users";
 import { Workspaces } from "src/entities/Workspaces";
-import { Connection, MoreThan, Repository } from "typeorm";
+import { EventsGateway } from "src/events/events.gateway";
+import { Connection, MoreThan, Not, Repository } from "typeorm";
 
 @Injectable()
 export class ChannelsService {
@@ -18,6 +17,7 @@ export class ChannelsService {
     @InjectRepository(ChannelMembers) private channelMembersRepository: Repository<ChannelMembers>,
     @InjectRepository(Channels) private channelsRepository: Repository<Channels>,
     private connection: Connection,
+    private eventsGateWay: EventsGateway,
   ) {}
 
   async findById(id: number) {
@@ -137,5 +137,56 @@ export class ChannelsService {
       },
     });
     return result;
+  }
+
+  async postChat({ url, name, content, myId }: { url: string; name: string; content: string; myId: number }) {
+    const channel = await this.channelsRepository
+      .createQueryBuilder("c")
+      .innerJoin("c.Workspace", "w", "w.url = :url", { url: url })
+      .where("c.name = :name", { name: name })
+      .getOne();
+
+    if (!channel) {
+      throw new NotFoundException("channel X");
+    }
+
+    const chats = this.channelChatsRepository.create();
+    chats.content = content;
+    chats.UserId = myId;
+    chats.ChannelId = channel.id;
+    const savedChat = await this.channelChatsRepository.save(chats);
+
+    const chatWithUser = await this.channelChatsRepository.findOne({
+      where: { id: savedChat.id },
+      relations: ["User", "Channel"],
+    });
+
+    // socket.io로 해당 채널 사용자한테 전송
+    this.eventsGateWay.server.to(`/ws-${url}-${channel.id}`).emit("보낼내용");
+  }
+
+  async createWorkspaceChannelImages(url: string, name: string, files: Express.Multer.File[], myId: number) {
+    const channel = await this.channelsRepository
+      .createQueryBuilder("c")
+      .innerJoin("c.Workspace", "w", "w.url = :url", { url: url })
+      .where("c.name = :name", { name: name })
+      .getOne();
+
+    if (!channel) {
+      throw new NotFoundException("channel X");
+    }
+    for (let i = 0; i < files.length; i++) {
+      const chats = this.channelChatsRepository.create();
+      chats.ChannelId = channel.id;
+      chats.UserId = myId;
+      chats.content = files[i].path;
+      const savedChat = await this.channelChatsRepository.save(chats);
+      const chatWithUser = await this.channelChatsRepository.findOne({
+        where: { id: savedChat.id },
+        relations: ["User", "Channel"],
+      });
+
+      this.eventsGateWay.server.to(`/ws-${url}-${channel.id}`).emit("보낼내용");
+    }
   }
 }

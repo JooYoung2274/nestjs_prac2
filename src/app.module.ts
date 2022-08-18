@@ -18,6 +18,7 @@ import { Mentions } from "./entities/Mentions";
 import { Users } from "./entities/Users";
 import { WorkspaceMembers } from "./entities/WorkspaceMembers";
 import { Workspaces } from "./entities/Workspaces";
+import { EventsModule } from "./events/events.module";
 
 // test2
 // AWS 저장소에서 비밀키 불러올때 아래처럼
@@ -67,6 +68,7 @@ import { Workspaces } from "./entities/Workspaces";
       },
     }), // typeorm import
     TypeOrmModule.forFeature([Users]),
+    EventsModule,
   ],
   controllers: [AppController],
   providers: [AppService, ConfigService],
