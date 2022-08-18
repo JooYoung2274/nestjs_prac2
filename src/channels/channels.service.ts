@@ -44,22 +44,22 @@ export class ChannelsService {
     await queryRunner.connect();
     await queryRunner.startTransaction();
 
-    const workspace = await this.workspacesRepository.findOne({ where: { url: url } });
+    const workspace = await queryRunner.manager.getRepository(Workspaces).findOne({ where: { url: url } });
 
     if (!workspace) {
       return null;
     }
 
     try {
-      const channel = this.channelsRepository.create();
+      const channel = queryRunner.manager.getRepository(Channels).create();
       channel.name = name;
       channel.WorkspaceId = workspace.id;
-      const channelReturned = await this.channelsRepository.save(channel);
+      const channelReturned = await queryRunner.manager.getRepository(Channels).save(channel);
 
-      const channelMember = this.channelMembersRepository.create();
+      const channelMember = queryRunner.manager.getRepository(ChannelMembers).create();
       channelMember.ChannelId = channelReturned.id;
       channelMember.UserId = myId;
-      await this.channelMembersRepository.save(channelMember);
+      await queryRunner.manager.getRepository(ChannelMembers).save(channelMember);
 
       await queryRunner.commitTransaction();
       return true;
