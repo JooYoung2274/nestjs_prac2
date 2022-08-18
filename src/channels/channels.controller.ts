@@ -1,10 +1,12 @@
 import { Body, Controller, Get, Param, Post, Query } from "@nestjs/common";
 import { ApiOperation, ApiParam, ApiTags } from "@nestjs/swagger";
 import { query } from "express";
+import { ChannelsService } from "./channels.service";
 
 @ApiTags("Channels")
 @Controller("api/workspaces/:url/channels")
 export class ChannelsController {
+  constructor(private channelsService: ChannelsService) {}
   @ApiParam({
     name: "url",
     description: "워크스페이스 url",
@@ -26,7 +28,10 @@ export class ChannelsController {
   })
   @ApiOperation({ summary: "특정 채널 조회" })
   @Get(":name")
-  getSpecificChannel() {}
+  getSpecificChannel(@Param("name") name: string) {
+    const result = this.channelsService.getWorkspaceChannel(name);
+    return result;
+  }
 
   @ApiParam({
     name: "url",
