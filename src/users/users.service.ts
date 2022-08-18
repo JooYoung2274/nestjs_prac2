@@ -1,11 +1,11 @@
 import { BadRequestException, HttpException, Injectable, UnauthorizedException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Users } from "src/entities/Users";
+import { Users } from "../entities/Users";
 import { Connection, QueryResult, Repository } from "typeorm";
 import { JoinRequestDto } from "./dto/join.request.dto";
 import bcrypt from "bcrypt";
-import { WorkspaceMembers } from "src/entities/WorkspaceMembers";
-import { ChannelMembers } from "src/entities/ChannelMembers";
+import { WorkspaceMembers } from "../entities/WorkspaceMembers";
+import { ChannelMembers } from "../entities/ChannelMembers";
 
 @Injectable()
 export class UsersService {
@@ -15,6 +15,13 @@ export class UsersService {
     @InjectRepository(ChannelMembers) private channelMembersRepository: Repository<ChannelMembers>,
     private connection: Connection,
   ) {}
+
+  async findByEmail(email: string) {
+    return this.usersRepository.findOne({
+      where: { email },
+      select: ["id", "email", "password"],
+    });
+  }
 
   async join(email: string, nickname: string, password: string) {
     // typeorm 공식문서에서 queryRunner 쓰라고 권장함

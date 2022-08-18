@@ -4,6 +4,7 @@ import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
 import { AppModule } from "./app.module";
 import { HttpExceptionFilter } from "./httpException.filter";
 import passport from "passport";
+import session from "express-session";
 import { NestExpressApplication } from "@nestjs/platform-express";
 import path from "path";
 // Hot reload 추가
@@ -44,6 +45,16 @@ async function bootstrap() {
     prefix: "/uploads",
   });
 
+  app.use(
+    session({
+      resave: false,
+      saveUninitialized: false,
+      secret: process.env.COOKIE_SECRET,
+      cookie: {
+        httpOnly: true,
+      },
+    }),
+  );
   app.use(passport.initialize()); // session 사용하려면 해당 미들웨어 필요
   app.use(passport.session());
 
